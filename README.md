@@ -4,7 +4,7 @@ This mobile application is an intelligent travel assistant that helps users find
 
 ---
 
-## Screenshots
+## OVERVIEW
 
 ### The App / The Team
 
