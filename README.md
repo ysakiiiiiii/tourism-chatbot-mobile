@@ -6,7 +6,7 @@ This mobile application is an intelligent travel assistant that helps users find
 
 ## Screenshots
 
-### Home / Chat Interface
+### The App / The Team
 
 ![Slide1](images/Slide1.JPG)
 
@@ -14,15 +14,15 @@ This mobile application is an intelligent travel assistant that helps users find
 
 ![Slide3](images/Slide3.JPG)
 
-### Feature 4
+### Technical Approach
 
 ![Slide4](images/Slide4.JPG)
 
-### Feature 5
+### Tools
 
 ![Slide5](images/Slide5.JPG)
 
-### Feature 6
+### MVP
 
 ![Slide6](images/Slide6.JPG)
 
