@@ -41,5 +41,10 @@ This mobile application is an intelligent travel assistant that helps users find
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/tourism-chatbot-mobile.git
+   git clone https://github.com/ysakiiiiiii/tourism-chatbot-mobile.git
    ```
+2. Install dependencies
+   ```
+   npm install
+   ```
+   
