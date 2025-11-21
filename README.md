@@ -1,12 +1,12 @@
-# Tourism Chatbot Mobile
+# LOCATOUR : CHATBOT MOBILE
 
 This mobile application is an intelligent travel assistant that helps users find the most suitable tourist spots based on their descriptions. It provides the best commute routes, fares, terminal locations, and delivers the information through a user-friendly chatbot interface.
 
 ---
 
-## Screenshots
+## OVERVIEW
 
-### Home / Chat Interface
+### The App / The Team
 
 ![Slide1](images/Slide1.JPG)
 
@@ -14,15 +14,15 @@ This mobile application is an intelligent travel assistant that helps users find
 
 ![Slide3](images/Slide3.JPG)
 
-### Feature 4
+### Technical Approach
 
 ![Slide4](images/Slide4.JPG)
 
-### Feature 5
+### Tools
 
 ![Slide5](images/Slide5.JPG)
 
-### Feature 6
+### MVP
 
 ![Slide6](images/Slide6.JPG)
 
@@ -41,5 +41,10 @@ This mobile application is an intelligent travel assistant that helps users find
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/tourism-chatbot-mobile.git
+   git clone https://github.com/ysakiiiiiii/tourism-chatbot-mobile.git
    ```
+2. Install dependencies
+   ```
+   npm install
+   ```
+   
