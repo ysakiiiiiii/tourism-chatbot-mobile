@@ -1,18 +1,15 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
-import Sidebar from '../src/Components/Sidebar'
-import Header from '../src/Components/Header'
+import Chatwindow from './Components/Chatwindow'
 
 function App() {
   return(
-    <>
-      <div className='bg-[#f2f2f2] h-full'>
-        <Header/>
-        
+    <div className='bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen flex items-center justify-center p-4'>
+      {/* Chatbot Container - ChatGPT Style */}
+      <div className='w-full md:max-w-3xl lg:max-w-4xl rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl bg-white'>
+        <Chatwindow />
       </div>
-    </>
+    </div>
   )
 }
 
