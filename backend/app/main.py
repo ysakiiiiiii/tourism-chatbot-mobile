@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 
 from app.config import API_TITLE, API_VERSION, API_DESCRIPTION
 from app.database import init_db
-from app.routes import chatbot, spots, cuisine
+from app.routes import chatbot, spots, cuisine, location
 from app.services.excel_to_prolog import convert_excel_to_prolog
 from app.services.prolog_service import get_prolog_service
 
@@ -60,6 +60,7 @@ app.add_middleware(
 app.include_router(chatbot.router)
 app.include_router(spots.router)
 app.include_router(cuisine.router)
+app.include_router(location.router)
 
 @app.get("/")
 async def root():
@@ -71,6 +72,7 @@ async def root():
             "chat": "/api/chat",
             "tourist_spots": "/api/spots",
             "cuisine": "/api/cuisine",
+            "location": "/api/location",
             "docs": "/docs",
             "redoc": "/redoc"
         }

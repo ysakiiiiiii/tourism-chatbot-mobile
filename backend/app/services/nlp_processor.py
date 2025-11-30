@@ -1,6 +1,6 @@
 """
 NLP Processing for chatbot queries
-Includes: tokenization, stop word removal, stemming, and ranking
+Includes: tokenization, stop word removal, stemming, ranking, and location detection
 """
 import re
 from collections import Counter
@@ -34,22 +34,54 @@ class SimpleNLPProcessor:
             'looking', 'look', 'need', 'like', 'would', 'could', 'please'
         }
         
+        # Common Ilocos locations - add more as needed
+        self.known_locations = {
+            'vigan', 'laoag', 'pagudpud', 'ilocos sur', 'ilocos norte',
+            'batac', 'paoay', 'bangui', 'bacarra', 'burgos', 'pasuquin',
+            'santa', 'caoayan', 'narvacan', 'candon', 'tagudin'
+        }
+        
+        # Location indicator phrases
+        self.location_indicators = [
+            'in', 'at', 'near', 'around', 'from', 'located in', 
+            'located at', 'found in', 'situated in'
+        ]
+        
         # Common word endings to remove (simple stemming)
         self.suffix_rules = [
-            ('sses', 'ss'),  # processes -> process
-            ('ies', 'i'),    # ponies -> poni
-            ('ss', 'ss'),    # stress -> stress
-            ('s', ''),       # cats -> cat
-            ('ed', ''),      # played -> play
-            ('ing', ''),     # playing -> play
-            ('ly', ''),      # quickly -> quick
-            ('ful', ''),     # beautiful -> beauti
+            ('sses', 'ss'),
+            ('ies', 'i'),
+            ('ss', 'ss'),
+            ('s', ''),
+            ('ed', ''),
+            ('ing', ''),
+            ('ly', ''),
+            ('ful', ''),
         ]
     
+    def detect_location(self, text):
+        """
+        Detect if user specifies a location in their query
+        Returns: location string or None
+        """
+        text_lower = text.lower()
+        
+        # Check for known locations
+        for location in self.known_locations:
+            # Direct match
+            if location in text_lower:
+                return location
+            
+            # Check with location indicators
+            for indicator in self.location_indicators:
+                pattern = f"{indicator}\\s+{location}"
+                if re.search(pattern, text_lower):
+                    return location
+        
+        return None
+    
     def stem_word(self, word):
-        """
-        Simple stemming using suffix removal
-        """
+        """Simple stemming using suffix removal"""
         word = word.lower()
         
         # Special cases for common words
@@ -80,37 +112,33 @@ class SimpleNLPProcessor:
         return word
     
     def tokenize(self, text):
-        """
-        Tokenize text into words, remove punctuation
-        """
-        # Convert to lowercase and remove punctuation
+        """Tokenize text into words, remove punctuation"""
         text = text.lower()
         text = re.sub(r'[^\w\s]', ' ', text)
-        
-        # Split into words
         words = text.split()
-        
         return words
     
     def remove_stop_words(self, words):
-        """
-        Remove common stop words
-        """
+        """Remove common stop words"""
         return [w for w in words if w not in self.stop_words and len(w) > 2]
     
     def process_query(self, query):
         """
         Full NLP pipeline:
-        1. Tokenize
-        2. Remove stop words
-        3. Stem words
+        1. Detect location (if specified)
+        2. Tokenize
+        3. Remove stop words
+        4. Stem words
         
-        Returns list of processed keywords
+        Returns: (keywords, detected_location)
         """
+        # Detect location first
+        detected_location = self.detect_location(query)
+        
         # Tokenize
         tokens = self.tokenize(query)
         
-        # Remove stop words
+        # Remove stop words (but keep location if detected)
         filtered = self.remove_stop_words(tokens)
         
         # Stem words
@@ -124,28 +152,36 @@ class SimpleNLPProcessor:
                 seen.add(word)
                 result.append(word)
         
-        return result
+        return result, detected_location
     
-    def calculate_relevance_score(self, item, keywords):
+    def calculate_relevance_score(self, item, keywords, location_filter=None):
         """
         Calculate relevance score for an item based on keyword matches
-        Higher score = more relevant
         
-        Scoring weights:
-        - Name exact match: 10 points
-        - Name contains keyword: 5 points
-        - Location match: 3 points
-        - Description keyword exact match: 2 points
-        - Description keyword partial match: 1 point
+        Args:
+            item: Item dictionary
+            keywords: List of keywords to match
+            location_filter: Optional location to filter by
+        
+        Returns:
+            (score, matched_keywords)
         """
         score = 0
         matched_keywords = []
+        unique_matches = set()
         
         # Get item fields
         name = str(item.get('name', '')).lower()
         location = str(item.get('location', '')).lower()
         desc_keywords = str(item.get('description_keywords', '')).lower()
         full_desc = str(item.get('full_description', '')).lower()
+        
+        # LOCATION FILTER: If user specified a location, check if item matches
+        if location_filter:
+            location_filter_lower = location_filter.lower()
+            if location_filter_lower not in location:
+                # Item doesn't match the specified location - heavily penalize or skip
+                return 0, []  # Return 0 score to effectively filter it out
         
         # Stem the item fields
         name_stemmed = ' '.join([self.stem_word(w) for w in self.tokenize(name)])
@@ -155,45 +191,65 @@ class SimpleNLPProcessor:
         
         for keyword in keywords:
             keyword_stemmed = self.stem_word(keyword)
+            keyword_matched = False
             
             # Check name (highest priority)
             if keyword_stemmed in name_stemmed:
                 if keyword_stemmed == name_stemmed:
-                    score += 10  # Exact match
+                    score += 10
                     matched_keywords.append(f"name:{keyword}")
                 else:
-                    score += 5  # Partial match
+                    score += 5
                     matched_keywords.append(f"name:{keyword}")
+                keyword_matched = True
             
             # Check location
             if keyword_stemmed in location_stemmed:
                 score += 3
                 matched_keywords.append(f"location:{keyword}")
+                keyword_matched = True
             
-            # Check description keywords (medium priority)
+            # Check description keywords
             if keyword_stemmed in desc_keywords_stemmed:
-                # Check if exact match in original keywords
-                if keyword in desc_keywords.split(','):
-                    score += 2
+                desc_kw_list = [kw.strip().lower() for kw in desc_keywords.split(',')]
+                if keyword.lower() in desc_kw_list or keyword_stemmed in desc_kw_list:
+                    score += 3
                 else:
-                    score += 1.5
+                    score += 2
                 matched_keywords.append(f"desc:{keyword}")
+                keyword_matched = True
             
-            # Check full description (lower priority)
-            if keyword_stemmed in full_desc_stemmed:
+            # Check full description
+            elif keyword_stemmed in full_desc_stemmed:
                 score += 1
                 matched_keywords.append(f"full_desc:{keyword}")
+                keyword_matched = True
+            
+            if keyword_matched:
+                unique_matches.add(keyword_stemmed)
+        
+        # Multiple keyword matches bonus
+        if len(unique_matches) > 1:
+            bonus = (len(unique_matches) - 1) * 5
+            score += bonus
+            matched_keywords.append(f"multi_match_bonus:{bonus}")
+        
+        # BONUS: If location_filter is specified and matched, give extra points
+        if location_filter and location_filter.lower() in location:
+            score += 8  # Significant bonus for matching the specified location
+            matched_keywords.append(f"location_filter_match:{location_filter}")
         
         return score, matched_keywords
     
-    def rank_results(self, items, keywords, top_n=1):
+    def rank_results(self, items, keywords, location_filter=None, top_n=1):
         """
         Rank items by relevance score and return top N
         
         Args:
             items: List of item dictionaries
             keywords: List of processed keywords
-            top_n: Number of top results to return (default: 1)
+            location_filter: Optional location to filter by
+            top_n: Number of top results to return
         
         Returns:
             List of tuples: (item, score, matched_keywords)
@@ -201,14 +257,13 @@ class SimpleNLPProcessor:
         scored_items = []
         
         for item in items:
-            score, matched = self.calculate_relevance_score(item, keywords)
-            if score > 0:  # Only include items with at least one match
+            score, matched = self.calculate_relevance_score(item, keywords, location_filter)
+            if score > 0:
                 scored_items.append((item, score, matched))
         
         # Sort by score (descending)
         scored_items.sort(key=lambda x: x[1], reverse=True)
         
-        # Return top N
         return scored_items[:top_n]
 
 # Singleton instance

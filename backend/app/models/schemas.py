@@ -12,6 +12,7 @@ class ChatResponse(BaseModel):
     matched_items: List[dict]
     session_id: str
     timestamp: datetime
+    # Note: matched_items will now include 'photo_url' field
 
 # Tourist Spot Schemas
 class TouristSpotBase(BaseModel):
@@ -24,6 +25,7 @@ class TouristSpotBase(BaseModel):
     best_time_to_visit: Optional[str] = None
     related_items: Optional[str] = None
     nearest_hub: Optional[str] = None
+    photo: Optional[str] = None  # Photo filename (e.g., "bagnet.jpg")
 
 class TouristSpotCreate(TouristSpotBase):
     pass
@@ -37,6 +39,7 @@ class TouristSpotUpdate(BaseModel):
     best_time_to_visit: Optional[str] = None
     related_items: Optional[str] = None
     nearest_hub: Optional[str] = None
+    photo: Optional[str] = None
 
 class TouristSpot(TouristSpotBase):
     class Config:
@@ -53,6 +56,7 @@ class CuisineBase(BaseModel):
     best_time_to_visit: Optional[str] = None
     related_items: Optional[str] = None
     nearest_hub: Optional[str] = None
+    photo: Optional[str] = None  # Photo filename
 
 class CuisineCreate(CuisineBase):
     pass
@@ -66,6 +70,7 @@ class CuisineUpdate(BaseModel):
     best_time_to_visit: Optional[str] = None
     related_items: Optional[str] = None
     nearest_hub: Optional[str] = None
+    photo: Optional[str] = None
 
 class Cuisine(CuisineBase):
     class Config:
