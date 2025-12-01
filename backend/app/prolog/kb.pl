@@ -137,9 +137,10 @@ description('CU09', 'A light vegetable soup flavored with bagoong and sometimes 
 best_time('CU09', 'Breakfast').
 nearest_hub('CU09', 'Laoag').
 
-item('CU10', 'Tinuno (grilled pork/fish)', 'cuisine', 'Currimao, Ilocos Norte').
+item('CU10', 'Tinuno', 'cuisine', 'Currimao, Ilocos Norte').
 has_keyword('CU10', 'grill').
 has_keyword('CU10', 'smoky').
+has_keyword('CU10', 'tinuno').
 description('CU10', 'Freshly grilled pork/fish, common in beach towns and seaside eateries').
 best_time('CU10', 'Late Afternoon/Dinner').
 related('CU10', 'sawsawan with calamansi').
