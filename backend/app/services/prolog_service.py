@@ -207,36 +207,55 @@ class ContextAwarePrologService:
         if asking_alternatives:
             original_count = len(items)
             
-            # Get location and type constraints from the last item
+            # Get location, item type, and ID prefix from the last item
             last_location = None
             last_type = None
+            last_id_prefix = None
             if context.last_items:
                 try:
                     last_location = context.last_items[0].get('location', '').lower().strip()
                     last_type = context.last_items[0].get('type', '').lower().strip()
-                    print(f"Restricting alternatives to location='{last_location}', type='{last_type}'")
+                    last_id = context.last_items[0].get('id', '').upper()
+                    # Extract ID prefix: TS (tourist spot) or CU (cuisine)
+                    if last_id.startswith('TS'):
+                        last_id_prefix = 'TS'
+                    elif last_id.startswith('CU') or last_id.startswith('CS'):
+                        last_id_prefix = 'CU'
+                    print(f"Restricting alternatives to location='{last_location}', type='{last_type}', id_prefix='{last_id_prefix}'")
                 except:
                     pass
             
-            # Filter items to match location and type of the last result
-            if last_location or last_type:
+            # Filter items to match location, type, and ID prefix of the last result
+            if last_location or last_type or last_id_prefix:
                 filtered_by_context = []
                 for item in items:
                     item_location = item.get('location', '').lower().strip()
                     item_type = item.get('type', '').lower().strip()
+                    item_id = item.get('id', '').upper()
                     
-                    # Match if same location OR same type
+                    # Extract item ID prefix
+                    item_id_prefix = None
+                    if item_id.startswith('TS'):
+                        item_id_prefix = 'TS'
+                    elif item_id.startswith('CU') or item_id.startswith('CS'):
+                        item_id_prefix = 'CU'
+                    
+                    # Check ID prefix match (strict: must match if prefix was detected)
+                    id_match = (last_id_prefix is None) or (item_id_prefix == last_id_prefix)
+                    
+                    # Check location or type match
                     location_match = last_location and last_location in item_location
                     type_match = last_type and last_type in item_type
                     
-                    if location_match or type_match:
+                    # Include if ID matches AND (location OR type match)
+                    if id_match and (location_match or type_match):
                         filtered_by_context.append(item)
                 
                 if filtered_by_context:
                     items = filtered_by_context
                     print(f"Filtered to context-matching items; {len(items)} candidate(s) remain")
                 else:
-                    print(f"No items match location/type context; keeping all {len(items)} for filtering by history")
+                    print(f"No items match location/type/ID context; keeping all {len(items)} for filtering by history")
             
             # Try to remove only the items shown in the last bot response first
             try:
