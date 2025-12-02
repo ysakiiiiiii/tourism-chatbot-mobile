@@ -8,3 +8,17 @@ backend> tourism-chatbot\Scripts\Activate
 
 
 http://127.0.0.1:8000/docs
+
+# 1. Delete the old virtual environment folder
+Remove-Item -Recurse -Force tourism-chatbot
+
+# 2. Create a new virtual environment
+python -m venv tourism-chatbot
+
+# 3. Activate the new virtual environment
+tourism-chatbot\Scripts\Activate
+
+pip install -r requirements.txt
+
+
+pip install --upgrade sqlalchemy

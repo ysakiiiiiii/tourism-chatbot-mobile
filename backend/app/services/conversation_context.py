@@ -35,6 +35,9 @@ class ConversationContext:
         # Contextual state
         self.current_topic = None  # Current conversation topic
         self.expecting_followup = False  # Is next query likely a follow-up?
+        # Flag set when follow-up "alternatives" requests have been exhausted
+        # i.e., there are no unseen alternatives left to show
+        self.last_alternatives_exhausted = False
         
         # Session metadata
         self.created_at = datetime.now()
@@ -202,6 +205,7 @@ class ConversationContext:
         }
         self.current_topic = None
         self.expecting_followup = False
+        self.last_alternatives_exhausted = False
         self.turn_count = 0
         self.last_activity = datetime.now()
     
@@ -212,6 +216,7 @@ class ConversationContext:
             'turn_count': self.turn_count,
             'current_topic': self.current_topic,
             'last_items': [item.get('name', 'Unknown') for item in self.last_items],
+            'last_alternatives_exhausted': getattr(self, 'last_alternatives_exhausted', False),
             'preferences': {
                 'locations': list(self.preferences['locations']),
                 'types': list(self.preferences['types']),
