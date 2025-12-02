@@ -233,6 +233,11 @@ def generate_response(items, is_followup, user_query, context):
     
     if not items:
         # No results - diverse responses
+        # Special case: follow-up alternatives exhausted -> explicit message
+        if is_followup and getattr(context, 'last_alternatives_exhausted', False):
+            context.last_alternatives_exhausted = False
+            return "I've already shown all different options I have for that. There are no more alternatives right now. Would you like to search a different area or try another type of place?"
+
         if is_followup:
             no_results_responses = [
                 "Hmm, I couldn't find any other options matching that. 🤔 Would you like to try a different area or type of place?",

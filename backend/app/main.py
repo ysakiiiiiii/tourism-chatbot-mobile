@@ -1,6 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
+import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 from app.config import API_TITLE, API_VERSION, API_DESCRIPTION
 from app.database import init_db
